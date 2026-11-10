@@ -6,22 +6,18 @@
 #include <strings.h>
 #include <stdio.h>
 
-PSP_MODULE_INFO("RetroGallery", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-
 #define W 480
 #define H 272
 #define MAX_IMG 200
 #define DIR_PATH "ms0:/PICTURE/"
 
-/* tombol PSP di SDL */
 #define BTN_L 4
 #define BTN_R 5
 #define BTN_LEFT 7
 #define BTN_RIGHT 9
 #define BTN_START 11
 
-static char files[MAX_IMG][256];
+static char files[MAX_IMG][300];
 static int count = 0;
 
 static int is_image(const char *n) {
@@ -35,7 +31,7 @@ static void scan(void) {
     if (!d) return;
     struct dirent *e;
     while ((e = readdir(d)) && count < MAX_IMG)
-        if (is_image(e->d_name)) snprintf(files[count++], 256, "%s%s", DIR_PATH, e->d_name);
+        if (is_image(e->d_name)) snprintf(files[count++], 300, "%s%s", DIR_PATH, e->d_name);
     closedir(d);
 }
 
@@ -45,7 +41,6 @@ static void rect(SDL_Renderer *r, int x, int y, int w, int h, int R, int G, int 
     SDL_RenderFillRect(r, &q);
 }
 
-/* bingkai 3D ala Windows 95 */
 static void bevel(SDL_Renderer *r, int x, int y, int w, int h) {
     rect(r, x, y, w, h, 192, 192, 192);
     rect(r, x, y, w, 2, 255, 255, 255);
@@ -55,16 +50,13 @@ static void bevel(SDL_Renderer *r, int x, int y, int w, int h) {
 }
 
 static void draw(SDL_Renderer *r, SDL_Texture *t, int idx) {
-    /* latar teal + garis scanline */
     rect(r, 0, 0, W, H, 0, 96, 96);
     for (int y = 0; y < H; y += 4) rect(r, 0, y, W, 1, 0, 80, 80);
 
-    /* jendela */
     bevel(r, 20, 14, 440, 244);
-    rect(r, 24, 18, 432, 18, 0, 0, 128);          /* title bar biru */
-    rect(r, 436, 21, 14, 12, 192, 192, 192);      /* kotak tombol */
+    rect(r, 24, 18, 432, 18, 0, 0, 128);
+    rect(r, 436, 21, 14, 12, 192, 192, 192);
 
-    /* area gambar (inset) */
     rect(r, 30, 44, 420, 190, 64, 64, 64);
     rect(r, 32, 46, 416, 186, 0, 0, 0);
 
@@ -77,10 +69,9 @@ static void draw(SDL_Renderer *r, SDL_Texture *t, int idx) {
         SDL_Rect dst = {32 + (416 - dw) / 2, 46 + (186 - dh) / 2, dw, dh};
         SDL_RenderCopy(r, t, NULL, &dst);
     } else {
-        rect(r, 200, 120, 80, 8, 255, 0, 0); /* penanda: tidak ada gambar */
+        rect(r, 200, 120, 80, 8, 255, 0, 0);
     }
 
-    /* progress bar (pengganti teks) */
     rect(r, 30, 240, 420, 12, 128, 128, 128);
     if (count > 0) rect(r, 32, 242, (416 * (idx + 1)) / count, 8, 0, 0, 128);
 
