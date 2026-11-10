@@ -6,7 +6,7 @@ jobs:
     container: pspdev/pspdev:latest
     steps:
       - uses: actions/checkout@v4
-      - run: psp-pacman -Syu --noconfirm sdl2 sdl2_image libpng libjpeg-turbo zlib
+      - run: psp-pacman -Syu --noconfirm sdl2 sdl2-image libpng jpeg zlib
       - run: make
       - uses: actions/upload-artifact@v4
         with:
