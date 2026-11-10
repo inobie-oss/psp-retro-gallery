@@ -90,22 +90,25 @@ int main(int argc, char *argv[]) {
     SDL_Texture *tex = NULL;
 
     while (run) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) run = 0;
+            if (e.type == SDL_JOYBUTTONDOWN) {
+                int b = e.jbutton.button;
+                if (b == BTN_START) run = 0;
+                if (count) {
+                    if (b == BTN_RIGHT || b == BTN_R) { idx = (idx + 1) % count; dirty = 1; }
+                    if (b == BTN_LEFT || b == BTN_L)  { idx = (idx + count - 1) % count; dirty = 1; }
+                }
+            }
+        }
         if (dirty) {
             if (tex) SDL_DestroyTexture(tex);
             tex = count ? IMG_LoadTexture(ren, files[idx]) : NULL;
-            draw(ren, tex, idx);
             dirty = 0;
         }
-        SDL_Event e;
-        if (SDL_WaitEvent(&e)) {
-            if (e.type == SDL_QUIT) run = 0;
-            if (e.type == SDL_JOYBUTTONDOWN && count) {
-                int b = e.jbutton.button;
-                if (b == BTN_RIGHT || b == BTN_R) { idx = (idx + 1) % count; dirty = 1; }
-                if (b == BTN_LEFT || b == BTN_L)  { idx = (idx + count - 1) % count; dirty = 1; }
-                if (b == BTN_START) run = 0;
-            }
-        }
+        draw(ren, tex, idx);
+        SDL_Delay(16);
     }
     if (tex) SDL_DestroyTexture(tex);
     IMG_Quit();
